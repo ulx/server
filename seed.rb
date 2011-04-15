@@ -11,7 +11,7 @@ class Seed  < Command
     @x = -1
     @y = -1
     @plant_id = -1
-    @state_id = 5
+    @state_id = 1
 
   end
 
@@ -28,15 +28,12 @@ class Seed  < Command
 
   def verify_field(url)
     list = url.split("/")
-    if list.length != 4 then
+    if list.length < 4 then
       return false
     end
     @x = list[1]
     @y = list[2]
     @plant_id = list[3]
-    if (@plant_id.to_i - 2) == 0 then  @state_id = 1 end
-    if (@plant_id.to_i - 3) == 1 then  @state_id = 5 end
-    if (@plant_id.to_i - 4) == 2 then  @state_id = (@plant_id.to_i - 4)*5 end
     if  ((-1 < @x.to_i) && (-1 < @y.to_i) && (@config.field_x.to_i > @x.to_i) && (@config.field_y.to_i > @y.to_i))
       return true
     end

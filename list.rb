@@ -13,19 +13,15 @@ class List < Command
     return 200, "text/xml", content
   end
   def run()
-    @xml = Array.new()
-    @xml.push('<?xml version="1.0" ?>')
-    @xml.push('<herbarium>')
-    @xml.push(create_body_xml())
-    @xml.push('</herbarium>')
-    @xml.to_s
+    @res = @m_db.query(@query)
+    @builder = Nokogiri::XML::Builder.new do |xml|
+      xml.herbarium {
+          @res.each do |row|
+            xml.element(:name => "#{row["name"]}", :id => "#{row["plant_id"]}", :level_max => "#{row["level_max"]}")
+          end
+      }
+    end
+    return @builder.to_xml
   end
-  def create_body_xml()
-     @res = @m_db.query(@query)
-     @s = Array.new()
-     @res.each do |row| p row
-          @s.push( "<" +"#{row["name"]}"+ " id=" +'"'+ "#{row["plant_id"]}" + '"' + " level_max=" +'"'+ "#{row["level_max"]}" + '"' +"/>")
-     end
-     @s
-  end
+
 end

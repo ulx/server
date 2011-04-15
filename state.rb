@@ -1,6 +1,8 @@
 require "command"
 require "managerBase"
 require "config/config"
+require 'open-uri'
+require 'nokogiri'
 class State < Command
   def initialize(server, m_db, config)
     super(server)
@@ -13,19 +15,16 @@ class State < Command
     return 200, "text/xml", content
   end
   def run()
-    @xml = Array.new()
-    @xml.push('<?xml version="1.0" ?>')
-    @xml.push("<country><field size_x="+ '"' + @config.field_x + '"' + " size_y="+ '"' + @config.field_x + '"' + ' zero_x="0" zero_y="0">')
-    @xml.push(create_body_xml())
-    @xml.push('</field></country>')
-    @xml.to_s
-  end
-  def create_body_xml()
-     @res = @m_db.query(@query)
-     @s = Array.new()
-     @res.each do |row| p row
-          @s.push( "<" +"#{row["name"]}"+ " id=" +'"'+ "#{row["id"]}" + '"' + " state=" + '"' + "#{row["state_id"]}"+ '"' " x=" +'"' "#{row["x"]}" '"'+ " y=" +'"'+ "#{row["y"]}"+ '"' "/>")
-     end
-    @s
+    @res = @m_db.query(@query)
+    @builder = Nokogiri::XML::Builder.new do |xml|
+      xml.country {
+        xml.field('size_x'=> @config.field_x, 'size_y'=> @config.field_y, 'zero_x'=>'0', 'zero_y'=>'0') {
+          @res.each do |row|
+            xml.element(:name => "#{row["name"]}", :id => "#{row["id"]}", :state => "#{row["state_id"]}", :x=>"#{row["x"]}", :y=>"#{row["y"]}")
+          end
+        }
+      }
+    end
+    return @builder.to_xml
   end
 end

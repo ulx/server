@@ -26,7 +26,7 @@ class Dig < Command
 
   def verify_field(url)
     list = url.split("/")
-    if list.length != 3 then
+    if list.length < 3 then
       return false
     end
     @field_x = list[1]
